@@ -1,89 +1,81 @@
-const todoInput = document.querySelector('.todo-input');
-const addBtn = document.querySelector('.add-btn');
-const todoList = document.querySelector('.todo-list');
-const charCount = document.querySelector('#charCount');
-const totalTasks = document.querySelector('#totalTasks');
-const completedTasks = document.querySelector('#completedTasks');
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-let todos = JSON.parse(localStorage.getItem('todos')) || [];
-
-function updateLocalStorage() {
-    localStorage.setItem('todos', JSON.stringify(todos));
+function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-function updateStats() {
-    totalTasks.textContent = todos.length;
-    const completed = todos.filter(todo => todo.completed).length;
-    completedTasks.textContent = completed;
-}
+function renderTasks() {
+    const list = document.getElementById("tasklist");
+    list.innerHTML = "";
 
-function createTodoElement(todo, index) {
-    const li = document.createElement('li');
-    li.className = 'todo-item';
-    li.innerHTML = `
-        <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
-        <div class="action-buttons">
-            <button class="btn complete-btn">${todo.completed ? 'Undo' : 'Complete'}</button>
-            <button class="btn edit-btn">Edit</button>
-            <button class="btn delete-btn">Delete</button>
-        </div>
-    `;
+    tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.className = "flex justify-between items-center bg-gray-100 p-2 rounded-lg";
 
-    li.querySelector('.complete-btn').addEventListener('click', () => toggleComplete(index));
-    li.querySelector('.delete-btn').addEventListener('click', () => deleteTodo(index));
-    li.querySelector('.edit-btn').addEventListener('click', () => editTodo(index));
+        const taskText = document.createElement("span");
+        taskText.textContent = `${task.text} (Priority: ${task.priority}, Due: ${task.dueDate}, Created: ${task.creationDate})`;
+        taskText.className = task.completed ? "line-through text-gray-500" : "";
+        taskText.onclick = () => toggleTask(index);
 
-    return li;
-}
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.className = "text-blue-500 hover:text-blue-700 mx-2";
+        editBtn.onclick = () => editTask(index);
 
-function renderTodos() {
-    todoList.innerHTML = '';
-    todos.forEach((todo, index) => {
-        todoList.appendChild(createTodoElement(todo, index));
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.className = "text-red-500 hover:text-red-700";
+        delBtn.onclick = () => deleteTask(index);
+
+        li.appendChild(taskText);
+        li.appendChild(editBtn);
+        li.appendChild(delBtn);
+        list.appendChild(li);
     });
-    updateStats();
 }
 
-function addTodo() {
-    const text = todoInput.value.trim();
-    if (text) {
-        todos.push({ text, completed: false });
-        todoInput.value = '';
-        updateLocalStorage();
-        renderTodos();
+function addTask() {
+    const input = document.getElementById("taskInput");
+    const priorityInput = document.getElementById("priorityInput");
+    const dueDateInput = document.getElementById("dueDateInput");
+
+    const text = input.value.trim();
+    const priority = priorityInput.value;
+    const dueDate = dueDateInput.value;
+    const creationDate = new Date().toLocaleDateString(); // Get the current date
+
+    if (text === "") return;
+
+    tasks.push({ text, completed: false, priority, dueDate, creationDate });
+    saveTasks();
+    renderTasks();
+}
+
+function toggleTask(index) {
+    tasks[index].completed = !tasks[index].completed;
+    saveTasks();
+    renderTasks();
+}
+
+function editTask(index) {
+    const newText = prompt("Edit task:", tasks[index].text);
+    if (newText !== null && newText.trim() !== "") {
+        tasks[index].text = newText.trim();
+        saveTasks();
+        renderTasks();
     }
 }
 
-function toggleComplete(index) {
-    todos[index].completed = !todos[index].completed;
-    updateLocalStorage();
-    renderTodos();
+function deleteTask(index) {
+    tasks.splice(index, 1);
+    saveTasks();
+    renderTasks();
 }
 
-function deleteTodo(index) {
-    todos.splice(index, 1);
-    updateLocalStorage();
-    renderTodos();
+function clearAllTasks() {
+    tasks = [];
+    saveTasks();
+    renderTasks();
 }
 
-function editTodo(index) {
-    const newText = prompt('Edit your task:', todos[index].text);
-    if (newText !== null) {
-        todos[index].text = newText.trim();
-        updateLocalStorage();
-        renderTodos();
-    }
-}
-
-// Event Listeners
-addBtn.addEventListener('click', addTodo);
-todoInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') addTodo();
-});
-
-todoInput.addEventListener('input', () => {
-    charCount.textContent = `${todoInput.value.length}/100`;
-});
-
-// Initial render
-renderTodos();
+renderTasks();

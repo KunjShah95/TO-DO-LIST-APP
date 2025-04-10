@@ -1,34 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Modern Todo List</title>
-    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body>
-    <section class="todo-container">
-        <header class="app-header">
-            <h1>Todo Master</h1>
-            <p class="character-count">Character Limit: <span id="charCount">0/100</span></p>
-        </header>
 
-        <main>
-            <div class="input-section">
-                <input type="text" class="todo-input" placeholder="Add a new task..." maxlength="100">
-                <button class="add-btn">Add Task</button>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-lg">
+        <h1 class="text-2xl font-bold text-center mb-6 text-blue-700">
+            To-Do List
+        </h1>
+        <div class="flex flex-col gap-4 mb-4">
+            <div class="flex gap-2">
+                <input type="text" id="taskInput" placeholder="Enter a new task" class="flex-1 p-2 border rounded-lg outline-none" />
+                <select id="priorityInput" class="p-2 border rounded-lg outline-none">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+                <input type="date" id="dueDateInput" class="p-2 border rounded-lg outline-none" />
             </div>
+            <button onclick="addTask()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+          Add Task
+        </button>
+        </div>
 
-            <ul class="todo-list">
-                <!-- Todo items will be added here dynamically -->
-            </ul>
+        <button onclick="clearAllTasks()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 mb-4">
+        Clear All
+      </button>
 
-            <div class="stats">
-                <span>Total tasks: <span id="totalTasks">0</span></span>
-                <span>Completed: <span id="completedTasks">0</span></span>
-            </div>
-        </main>
-    </section>
+        <ul id="tasklist" class="space-y-2 max-h-64 overflow-y-auto"></ul>
+    </div>
+
     <script src="script.js"></script>
 </body>
+
 </html>
